@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Preço (Gramas)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,700&display=swap');
+
+        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background-color: white; border: 2px solid #3fa9f5; border-radius: 8px; padding: 30px 20px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .icon-container { display: flex; justify-content: center; margin-bottom: 25px; }
+        .icon-calc { width: 60px; height: 60px; fill: #2d00f7; }
+        .row { display: flex; align-items: flex-end; margin-bottom: 20px; justify-content: space-between; }
+        .product-label { font-weight: 700; font-style: italic; color: #0b0b45; width: 80px; margin-bottom: 10px; font-size: 14px; }
+        .input-group { display: flex; flex-direction: column; width: 100px; }
+        .input-group label { font-size: 12px; color: #0b0b45; margin-bottom: 5px; text-align: center; }
+        .input-group input { border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; font-size: 14px; color: #6b7280; outline: none; transition: border-color 0.2s; }
+        .input-group input:focus { border-color: #2d00f7; }
+        .results-area { text-align: center; margin: 20px 0; font-size: 14px; color: #0b0b45; font-weight: 500; }
+        .result-line { margin-bottom: 8px; }
+        .buttons-container { display: flex; gap: 10px; margin-top: 10px; }
+        button { border: none; padding: 15px; border-radius: 6px; font-size: 18px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        .btn-calcular { background-color: #2d00f7; color: white; flex: 2; }
+        .btn-fechar { background-color: #dcdde9; color: #000; flex: 1; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="icon-container">
+            <svg class="icon-calc" viewBox="0 0 24 24">
+                <path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M19,19H5V5h14V19z"/>
+                <rect x="7" y="7" width="10" height="3" rx="0.5" fill="#2d00f7"/>
+                <circle cx="8" cy="13" r="1.5" fill="#2d00f7"/> <circle cx="12" cy="13" r="1.5" fill="#2d00f7"/> <circle cx="16" cy="13" r="1.5" fill="#2d00f7"/>
+                <circle cx="8" cy="17" r="1.5" fill="#2d00f7"/> <circle cx="12" cy="17" r="1.5" fill="#2d00f7"/> <circle cx="16" cy="17" r="1.5" fill="#2d00f7"/>
+            </svg>
+        </div>
+
+        <div class="row">
+            <span class="product-label">Produto 1:</span>
+            <div class="input-group">
+                <label>preço (R$)</label>
+                <input type="number" id="p1-price" placeholder="0.00 R$" step="0.01">
+            </div>
+            <div class="input-group">
+                <label>peso (g)</label>
+                <input type="number" id="p1-weight" placeholder="0 (g)" step="1">
+            </div>
+        </div>
+
+        <div class="row">
+            <span class="product-label">Produto 2:</span>
+            <div class="input-group">
+                <label>preço (R$)</label>
+                <input type="number" id="p2-price" placeholder="0.00 R$" step="0.01">
+            </div>
+            <div class="input-group">
+                <label>peso (g)</label>
+                <input type="number" id="p2-weight" placeholder="0 (g)" step="1">
+            </div>
+        </div>
+
+        <div class="results-area">
+            <div class="result-line" id="res-1">O Produto 1 custa --- por KG.</div>
+            <div class="result-line" id="res-2">O Produto 2 custa --- por KG.</div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="btn-calcular" onclick="calcular()">Calcular</button>
+            <button class="btn-fechar" onclick="limpar()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        function calcular() {
+            // Inputs Produto 1
+            const p1Price = parseFloat(document.getElementById('p1-price').value);
+            const p1Input = parseFloat(document.getElementById('p1-weight').value);
+            
+            // Inputs Produto 2
+            const p2Price = parseFloat(document.getElementById('p2-price').value);
+            const p2Input = parseFloat(document.getElementById('p2-weight').value);
+
+            const res1 = document.getElementById('res-1');
+            const res2 = document.getElementById('res-2');
+
+            // Cálculo P1 (Lógica modificada: se 1 vira 1, senão divide por 1000)
+            if (p1Price && p1Input) {
+                const pesoReal1 = (p1Input === 1) ? 1 : (p1Input / 1000);
+                const total1 = p1Price / pesoReal1;
+                res1.innerHTML = `O Produto 1 custa <strong>${formatMoney(total1)}</strong> por KG.`;
+            } else {
+                res1.innerHTML = "O Produto 1 custa --- por KG.";
+            }
+
+            // Cálculo P2
+            if (p2Price && p2Input) {
+                const pesoReal2 = (p2Input === 1) ? 1 : (p2Input / 1000);
+                const total2 = p2Price / pesoReal2;
+                res2.innerHTML = `O Produto 2 custa <strong>${formatMoney(total2)}</strong> por KG.`;
+            } else {
+                res2.innerHTML = "O Produto 2 custa --- por KG.";
+            }
+        }
+
+        function formatMoney(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function limpar() {
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('res-1').innerHTML = "O Produto 1 custa --- por KG.";
+            document.getElementById('res-2').innerHTML = "O Produto 2 custa --- por KG.";
+        }
+    </script>
+</body>
+</html>
