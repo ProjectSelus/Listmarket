@@ -222,21 +222,34 @@
             toast.innerText = message;
             
             container.appendChild(toast);
-
-            // Animação de entrada (pequeno delay para o CSS transition pegar)
             setTimeout(() => { toast.classList.add('show'); }, 10);
-
-            // Remove após 3 segundos
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => { toast.remove(); }, 500); // Espera o fade-out
+                setTimeout(() => { toast.remove(); }, 500);
             }, 3000);
         }
 
         // --- LÓGICA DA LISTA ---
         const input = document.getElementById('item-input');
         const list = document.getElementById('shopping-list');
-        let itemToDelete = null; // Variável para guardar qual item será excluido
+        let itemToDelete = null;
+
+        // FUNÇÃO NOVA: Organiza a lista (Não marcados primeiro, Marcados por último)
+        function organizarLista() {
+            const items = Array.from(list.children);
+            
+            items.sort((a, b) => {
+                const checkedA = a.querySelector('input[type="checkbox"]').checked;
+                const checkedB = b.querySelector('input[type="checkbox"]').checked;
+                
+                // Se A não está marcado e B está, A vem primeiro (-1)
+                // Se A está marcado e B não, A vai pro fim (1)
+                return checkedA - checkedB;
+            });
+
+            // Reinsere os itens na ordem correta
+            items.forEach(item => list.appendChild(item));
+        }
 
         function addItem() {
             const text = input.value.trim();
@@ -251,7 +264,9 @@
                 </div>
                 <button class="btn-delete" onclick="requestDelete(this)">🗑️</button>
             `;
-            list.appendChild(li);
+            list.appendChild(li); // Adiciona
+            organizarLista();     // Organiza imediatamente (para ficar acima dos riscados)
+            
             input.value = '';
             showToast("Item adicionado com sucesso!", "success");
         }
@@ -262,39 +277,33 @@
 
             if (checkbox.checked) {
                 span.classList.add('checked-item');
-                list.appendChild(li); // Move pro final
             } else {
                 span.classList.remove('checked-item');
             }
+            
+            // A mágica acontece aqui: ao clicar, ele reordena a lista toda
+            organizarLista();
         }
 
-        // --- LÓGICA DE DELETE (CONDICIONAL) ---
+        // --- LÓGICA DE DELETE ---
         function requestDelete(btn) {
             const li = btn.closest('li');
             const checkbox = li.querySelector('input[type="checkbox"]');
             const itemName = li.querySelector('span').innerText;
 
             if (checkbox.checked) {
-                // Se estiver marcado, deleta direto
                 li.remove();
                 showToast("Item excluído.", "danger");
+                // Não precisa organizar lista após deletar, pois a ordem dos restantes não muda
             } else {
-                // Se não estiver marcado, pede confirmação
-                itemToDelete = li; // Guarda a referência do LI
+                itemToDelete = li;
                 document.getElementById('delete-target-name').innerText = itemName;
                 openConfirmModal();
             }
         }
 
-        // Funções do Modal de Confirmação
-        function openConfirmModal() {
-            document.getElementById('modal-confirm').style.display = 'flex';
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('modal-confirm').style.display = 'none';
-            itemToDelete = null;
-        }
+        function openConfirmModal() { document.getElementById('modal-confirm').style.display = 'flex'; }
+        function closeConfirmModal() { document.getElementById('modal-confirm').style.display = 'none'; itemToDelete = null; }
 
         function confirmDelete() {
             if (itemToDelete) {
