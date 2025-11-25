@@ -3,117 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Preço (Gramas)</title>
+    <title>Lista de Mercado Pro</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
-        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background-color: white; border: 2px solid #3fa9f5; border-radius: 8px; padding: 30px 20px; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .icon-container { display: flex; justify-content: center; margin-bottom: 25px; }
-        .icon-calc { width: 60px; height: 60px; fill: #2d00f7; }
-        .row { display: flex; align-items: flex-end; margin-bottom: 20px; justify-content: space-between; }
-        .product-label { font-weight: 700; font-style: italic; color: #0b0b45; width: 80px; margin-bottom: 10px; font-size: 14px; }
-        .input-group { display: flex; flex-direction: column; width: 100px; }
-        .input-group label { font-size: 12px; color: #0b0b45; margin-bottom: 5px; text-align: center; }
-        .input-group input { border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; font-size: 14px; color: #6b7280; outline: none; transition: border-color 0.2s; }
-        .input-group input:focus { border-color: #2d00f7; }
-        .results-area { text-align: center; margin: 20px 0; font-size: 14px; color: #0b0b45; font-weight: 500; }
-        .result-line { margin-bottom: 8px; }
-        .buttons-container { display: flex; gap: 10px; margin-top: 10px; }
-        button { border: none; padding: 15px; border-radius: 6px; font-size: 18px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
-        .btn-calcular { background-color: #2d00f7; color: white; flex: 2; }
-        .btn-fechar { background-color: #dcdde9; color: #000; flex: 1; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        body { font-family: 'Roboto', sans-serif; margin: 0; background-color: #fff; color: #333; }
+
+        /* --- Header --- */
+        header { background-color: #5be7e9; padding: 20px; text-align: center; color: #0000cd; }
+        .header-content { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        h1 { margin: 0; font-size: 24px; font-weight: 800; }
+
+        /* --- Auth Area --- */
+        .auth-container { text-align: center; padding: 15px; }
+        .welcome-text { color: #2d00f7; font-size: 14px; margin-bottom: 10px; }
+        .auth-buttons { display: flex; justify-content: flex-end; gap: 5px; max-width: 400px; margin: 0 auto; }
+        .btn-auth { background-color: #3b9af8; color: white; border: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+        /* --- Main Input --- */
+        .input-area { text-align: center; margin-top: 20px; }
+        #item-input {
+            width: 80%; max-width: 350px; padding: 12px; border: 2px solid #5a5aec; 
+            border-radius: 8px; font-size: 16px; outline: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-add {
+            background-color: #3b9af8; color: white; border: none; padding: 12px 30px; 
+            border-radius: 6px; font-size: 16px; font-weight: bold; margin-top: 15px; cursor: pointer;
+        }
+
+        /* --- List --- */
+        .list-container { max-width: 400px; margin: 30px auto; padding: 0 10px; }
+        ul { list-style: none; padding: 0; }
+        li {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px; margin-bottom: 5px; font-size: 18px; color: #0b0b45;
+            transition: all 0.3s ease;
+        }
+        .item-left { display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+        input[type="checkbox"] { transform: scale(1.5); accent-color: #2d00f7; cursor: pointer; }
+        .editable-text { cursor: text; padding: 2px 5px; border-radius: 4px; width: 100%; }
+        .editable-text:focus { background-color: #f0f2f5; outline: none; }
+        .checked-item { text-decoration: line-through; color: #888; }
+        .btn-delete { background: none; border: none; font-size: 20px; cursor: pointer; color: #2d00f7; }
+
+        /* --- Footer Button --- */
+        .calc-trigger-container { text-align: center; margin-bottom: 30px; }
+        .btn-calc-trigger {
+            background-color: #555; color: white; border: none; padding: 10px 20px;
+            border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer;
+        }
+
+        /* --- TOAST NOTIFICATION (Mensagens Flutuantes) --- */
+        #toast-container {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; display: flex; flex-direction: column; gap: 10px; align-items: center;
+        }
+        .toast {
+            background-color: #333; color: #fff; padding: 10px 20px; border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 14px; opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(-20px);
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: #2d00f7; } /* Azul */
+        .toast.danger { background-color: #e63946; } /* Vermelho */
+
+        /* --- MODAL GERAL (Overlay) --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- MODAL CONFIRMAÇÃO DE DELETE --- */
+        .confirm-card {
+            background-color: white; border-radius: 8px; padding: 25px; width: 340px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); text-align: left;
+        }
+        .confirm-title { font-weight: 800; font-size: 18px; margin-bottom: 15px; color: #333; }
+        .confirm-text { color: #555; font-size: 14px; margin-bottom: 25px; line-height: 1.5; }
+        .highlight-red { color: #ea4c4c; font-weight: 800; }
+        .confirm-actions { display: flex; justify-content: space-between; gap: 10px; }
+        
+        .btn-confirm-cancel {
+            background-color: #f5f5f5; color: #333; border: 1px solid #ddd;
+            padding: 12px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer;
+        }
+        .btn-confirm-delete {
+            background-color: #ec4c65; color: white; border: none;
+            padding: 12px; border-radius: 6px; font-weight: bold; flex: 1; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-confirm-delete:hover { background-color: #d63a52; }
+
+        /* --- MODAL CALCULADORA --- */
+        .calc-card {
+            background-color: white; border: 2px solid #3fa9f5; border-radius: 8px;
+            padding: 20px; width: 90%; max-width: 450px; position: relative;
+        }
+        .calc-row { display: flex; align-items: flex-end; margin-bottom: 15px; gap: 45px; }
+        .calc-group { display: flex; flex-direction: column; width: 90px; }
+        .calc-group label { font-size: 11px; color: #0b0b45; margin-bottom: 2px; text-align: center; }
+        .calc-group input { border: 1px solid #d1d5db; border-radius: 6px; padding: 8px; width: 100%; }
+        .calc-results { text-align: center; margin: 15px 0; font-size: 13px; color: #0b0b45; }
+        .calc-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .c-btn { border: none; padding: 10px; border-radius: 6px; font-weight: 800; cursor: pointer; flex: 1; }
+        .btn-c-calc { background-color: #2d00f7; color: white; flex: 2; }
+        .btn-c-close { background-color: #dcdde9; color: #000; }
+
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="icon-container">
-            <svg class="icon-calc" viewBox="0 0 24 24">
-                <path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M19,19H5V5h14V19z"/>
-                <rect x="7" y="7" width="10" height="3" rx="0.5" fill="#2d00f7"/>
-                <circle cx="8" cy="13" r="1.5" fill="#2d00f7"/> <circle cx="12" cy="13" r="1.5" fill="#2d00f7"/> <circle cx="16" cy="13" r="1.5" fill="#2d00f7"/>
-                <circle cx="8" cy="17" r="1.5" fill="#2d00f7"/> <circle cx="12" cy="17" r="1.5" fill="#2d00f7"/> <circle cx="16" cy="17" r="1.5" fill="#2d00f7"/>
+    <div id="toast-container"></div>
+
+    <header>
+        <div class="header-content">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2d00f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1"></circle> <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
+            <h1>Lista de Mercado</h1>
         </div>
+    </header>
 
-        <div class="row">
-            <span class="product-label">Produto 1:</span>
-            <div class="input-group">
-                <label>preço (R$)</label>
-                <input type="number" id="p1-price" placeholder="0.00 R$" step="0.01">
+    <div class="auth-container">
+        <p class="welcome-text">Seja bem vindo. Cadastre-se para aproveitar mais recursos.</p>
+        <div class="auth-buttons">
+            <button class="btn-auth" onclick="alert('Em breve')">Login</button>
+            <button class="btn-auth" onclick="alert('Em breve')">Quero me Cadastrar</button>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="item-input" placeholder="Nome do Produto">
+        <br>
+        <button class="btn-add" onclick="addItem()">Adicionar Item</button>
+    </div>
+
+    <div class="list-container">
+        <ul id="shopping-list">
+            <li class="item">
+                <div class="item-left">
+                    <input type="checkbox" onchange="checkItem(this)">
+                    <span class="editable-text" contenteditable="true">peito de peru</span>
+                </div>
+                <button class="btn-delete" onclick="requestDelete(this)">🗑️</button>
+            </li>
+            <li class="item">
+                <div class="item-left">
+                    <input type="checkbox" onchange="checkItem(this)">
+                    <span class="editable-text" contenteditable="true">ronaldo</span>
+                </div>
+                <button class="btn-delete" onclick="requestDelete(this)">🗑️</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="calc-trigger-container">
+        <button class="btn-calc-trigger" onclick="openCalcModal()">🔢 Calc</button>
+    </div>
+
+    <div id="modal-calc" class="modal-overlay">
+        <div class="calc-card">
+            <div style="display:flex; justify-content:center; margin-bottom:15px;">
+                <svg width="50" height="50" viewBox="0 0 24 24">
+                    <path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M19,19H5V5h14V19z" fill="#000"/>
+                    <rect x="7" y="7" width="10" height="3" rx="0.5" fill="#2d00f7"/>
+                    <circle cx="8" cy="13" r="1.5" fill="#2d00f7"/> <circle cx="12" cy="13" r="1.5" fill="#2d00f7"/>
+                    <circle cx="16" cy="13" r="1.5" fill="#2d00f7"/> <circle cx="8" cy="17" r="1.5" fill="#2d00f7"/>
+                </svg>
             </div>
-            <div class="input-group">
-                <label>peso (g)</label>
-                <input type="number" id="p1-weight" placeholder="0 (g)" step="1">
+            <div class="calc-row">
+                <span style="font-weight:700; font-style:italic; color:#0b0b45; font-size:14px;">Prod 1:</span>
+                <div class="calc-group"><label>preço (R$)</label><input type="number" id="p1-price" step="0.01"></div>
+                <div class="calc-group"><label>peso (g)</label><input type="number" id="p1-weight" step="1"></div>
+            </div>
+            <div class="calc-row">
+                <span style="font-weight:700; font-style:italic; color:#0b0b45; font-size:14px;">Prod 2:</span>
+                <div class="calc-group"><label>preço (R$)</label><input type="number" id="p2-price" step="0.01"></div>
+                <div class="calc-group"><label>peso (g)</label><input type="number" id="p2-weight" step="1"></div>
+            </div>
+            <div class="calc-results">
+                <div id="res-1">Produto 1: --- / kg</div>
+                <div id="res-2">Produto 2: --- / kg</div>
+            </div>
+            <div class="calc-btns">
+                <button class="c-btn btn-c-calc" onclick="calcular()">Calcular</button>
+                <button class="c-btn btn-c-close" onclick="closeCalcModal()">Fechar</button>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-            <span class="product-label">Produto 2:</span>
-            <div class="input-group">
-                <label>preço (R$)</label>
-                <input type="number" id="p2-price" placeholder="0.00 R$" step="0.01">
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="confirm-card">
+            <div class="confirm-title">Deletar Produto</div>
+            <div class="confirm-text">
+                Tem certeza que deseja deletar o produto <span id="delete-target-name" class="highlight-red">Item</span>?
+                <br><br>
+                Essa ação é permanente e não pode ser revertida.
             </div>
-            <div class="input-group">
-                <label>peso (g)</label>
-                <input type="number" id="p2-weight" placeholder="0 (g)" step="1">
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn-confirm-delete" onclick="confirmDelete()">
+                    🗑 Deletar
+                </button>
             </div>
-        </div>
-
-        <div class="results-area">
-            <div class="result-line" id="res-1">O Produto 1 custa --- por KG.</div>
-            <div class="result-line" id="res-2">O Produto 2 custa --- por KG.</div>
-        </div>
-
-        <div class="buttons-container">
-            <button class="btn-calcular" onclick="calcular()">Calcular</button>
-            <button class="btn-fechar" onclick="limpar()">Fechar</button>
         </div>
     </div>
 
     <script>
+        // --- SISTEMA DE TOAST (NOTIFICAÇÕES) ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            
+            container.appendChild(toast);
+
+            // Animação de entrada (pequeno delay para o CSS transition pegar)
+            setTimeout(() => { toast.classList.add('show'); }, 10);
+
+            // Remove após 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => { toast.remove(); }, 500); // Espera o fade-out
+            }, 3000);
+        }
+
+        // --- LÓGICA DA LISTA ---
+        const input = document.getElementById('item-input');
+        const list = document.getElementById('shopping-list');
+        let itemToDelete = null; // Variável para guardar qual item será excluido
+
+        function addItem() {
+            const text = input.value.trim();
+            if (text === '') return;
+
+            const li = document.createElement('li');
+            li.className = 'item';
+            li.innerHTML = `
+                <div class="item-left">
+                    <input type="checkbox" onchange="checkItem(this)">
+                    <span class="editable-text" contenteditable="true">${text}</span>
+                </div>
+                <button class="btn-delete" onclick="requestDelete(this)">🗑️</button>
+            `;
+            list.appendChild(li);
+            input.value = '';
+            showToast("Item adicionado com sucesso!", "success");
+        }
+
+        function checkItem(checkbox) {
+            const li = checkbox.closest('li');
+            const span = li.querySelector('span');
+
+            if (checkbox.checked) {
+                span.classList.add('checked-item');
+                list.appendChild(li); // Move pro final
+            } else {
+                span.classList.remove('checked-item');
+            }
+        }
+
+        // --- LÓGICA DE DELETE (CONDICIONAL) ---
+        function requestDelete(btn) {
+            const li = btn.closest('li');
+            const checkbox = li.querySelector('input[type="checkbox"]');
+            const itemName = li.querySelector('span').innerText;
+
+            if (checkbox.checked) {
+                // Se estiver marcado, deleta direto
+                li.remove();
+                showToast("Item excluído.", "danger");
+            } else {
+                // Se não estiver marcado, pede confirmação
+                itemToDelete = li; // Guarda a referência do LI
+                document.getElementById('delete-target-name').innerText = itemName;
+                openConfirmModal();
+            }
+        }
+
+        // Funções do Modal de Confirmação
+        function openConfirmModal() {
+            document.getElementById('modal-confirm').style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('modal-confirm').style.display = 'none';
+            itemToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (itemToDelete) {
+                itemToDelete.remove();
+                showToast("Item excluído.", "danger");
+            }
+            closeConfirmModal();
+        }
+
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addItem();
+        });
+
+        // --- LÓGICA DA CALCULADORA ---
+        const calcModal = document.getElementById('modal-calc');
+        function openCalcModal() { calcModal.style.display = 'flex'; }
+        function closeCalcModal() { calcModal.style.display = 'none'; }
+
         function calcular() {
-            // Inputs Produto 1
             const p1Price = parseFloat(document.getElementById('p1-price').value);
             const p1Input = parseFloat(document.getElementById('p1-weight').value);
-            
-            // Inputs Produto 2
             const p2Price = parseFloat(document.getElementById('p2-price').value);
             const p2Input = parseFloat(document.getElementById('p2-weight').value);
-
             const res1 = document.getElementById('res-1');
             const res2 = document.getElementById('res-2');
 
-            // Cálculo P1 (Lógica modificada: se 1 vira 1, senão divide por 1000)
             if (p1Price && p1Input) {
-                const pesoReal1 = (p1Input === 1) ? 1 : (p1Input / 1000);
-                const total1 = p1Price / pesoReal1;
-                res1.innerHTML = `O Produto 1 custa <strong>${formatMoney(total1)}</strong> por KG.`;
-            } else {
-                res1.innerHTML = "O Produto 1 custa --- por KG.";
+                const peso1 = (p1Input === 1) ? 1 : (p1Input / 1000);
+                res1.innerHTML = `Produto 1: <strong>${(p1Price / peso1).toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</strong> / kg`;
             }
-
-            // Cálculo P2
             if (p2Price && p2Input) {
-                const pesoReal2 = (p2Input === 1) ? 1 : (p2Input / 1000);
-                const total2 = p2Price / pesoReal2;
-                res2.innerHTML = `O Produto 2 custa <strong>${formatMoney(total2)}</strong> por KG.`;
-            } else {
-                res2.innerHTML = "O Produto 2 custa --- por KG.";
+                const peso2 = (p2Input === 1) ? 1 : (p2Input / 1000);
+                res2.innerHTML = `Produto 2: <strong>${(p2Price / peso2).toLocaleString('pt-BR', {style:'currency', currency:'BRL'})}</strong> / kg`;
             }
-        }
-
-        function formatMoney(value) {
-            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function limpar() {
-            document.querySelectorAll('input').forEach(input => input.value = '');
-            document.getElementById('res-1').innerHTML = "O Produto 1 custa --- por KG.";
-            document.getElementById('res-2').innerHTML = "O Produto 2 custa --- por KG.";
         }
     </script>
 </body>
